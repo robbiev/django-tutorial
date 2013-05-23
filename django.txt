@@ -1,0 +1,41 @@
+django-admin.py startproject xxxx
+python manage.py runserver
+edit settings.py (db config, timezone)
+python manage.py syncdb
+python manage.py startapp web 
+edit web/model.py
+edit settings.py (add the app)
+
+# to see the sql
+python manage.py sql web 
+
+===
+python manage.py validate – 
+  Checks for any errors in the construction of your models.
+python manage.py sqlcustom polls – 
+  Outputs any custom SQL statements 
+python manage.py sqlclear polls – 
+  Outputs the necessary DROP TABLE statements
+python manage.py sqlindexes polls –
+  Outputs the CREATE INDEX statements 
+python manage.py sqlall polls 
+– A combination of all the SQL
+===
+
+# now sync it to the db
+python manage.py syncdb
+
+enable the admin app in settings.py
+modify urls.py to include it
+
+# create admin.py in web/ and register
+from django.contrib import admin
+from web.models import Poll 
+admin.site.register(Poll)
+
+# find out where django is installed
+python -c "
+import sys
+sys.path = sys.path[1:]
+import django
+print(django.__path__)"

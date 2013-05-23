@@ -2,21 +2,44 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
-from django.http import Http404
+from django.views import generic
+from django.utils import timezone
+
 from web.models import *
 
-def index(request):
-  latest_poll_list = Poll.objects.order_by('-pub_date')[:5]
-  context = {'latest_poll_list': latest_poll_list}
-  return render(request, 'web/index.html', context)
+#def index(request):
+#  latest_poll_list = Poll.objects.order_by('-pub_date')[:5]
+#  context = {'latest_poll_list': latest_poll_list}
+#  return render(request, 'web/index.html', context)
+#
+#def detail(request, poll_id):
+#  poll = get_object_or_404(Poll, pk=poll_id)
+#  return render(request, 'web/detail.html', {'poll': poll})
+#
+#def results(request, poll_id):
+#  poll = get_object_or_404(Poll, pk=poll_id)
+#  return render(request, 'web/results.html', {'poll': poll})
 
-def detail(request, poll_id):
-  poll = get_object_or_404(Poll, pk=poll_id)
-  return render(request, 'web/detail.html', {'poll': poll})
+class IndexView(generic.ListView):
+  template_name = 'web/index.html'
+  context_object_name = 'latest_poll_list'
 
-def results(request, poll_id):
-  poll = get_object_or_404(Poll, pk=poll_id)
-  return render(request, 'web/results.html', {'poll': poll})
+  def get_queryset(self):
+    """Return the last five published polls."""
+    return Poll.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
+
+class DetailView(generic.DetailView):
+  model = Poll
+  template_name = 'web/detail.html'
+  def get_queryset(self):
+    """
+    Excludes any polls that aren't published yet.
+    """
+    return Poll.objects.filter(pub_date__lte=timezone.now())
+
+class ResultsView(generic.DetailView):
+  model = Poll
+  template_name = 'web/results.html'
 
 def vote(request, poll_id):
   p = get_object_or_404(Poll, pk=poll_id)
